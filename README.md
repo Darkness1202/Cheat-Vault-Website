@@ -34,7 +34,7 @@ CheatVault is a modern, retro-inspired website featuring a comprehensive databas
 ## 🚀 Quick Start
 
 ### View Live Site
-Visit the live website: `https://YOUR-USERNAME.github.io/cheat-vault/`
+Visit the live website: `https://Darkness1202.github.io/cheat-vault/`
 
 ### Local Development
 1. Clone this repository
@@ -123,7 +123,7 @@ This website is for educational and entertainment purposes only. Cheats are inte
 
 ## 🌐 Links
 
-- 🌟 [Live Website](https://YOUR-USERNAME.github.io/cheat-vault/)
+- 🌟 [Live Website](https://Darkness1202.github.io/cheat-vault/)
 - 📧 Report issues or suggest games via GitHub Issues
 
 ## 💖 Support
