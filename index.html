@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheatVault - Your Ultimate Game Cheat Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --bg-card: #252b4a;
+            --accent-primary: #00ff88;
+            --accent-secondary: #0099ff;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b8d4;
+            --border-color: #3a4265;
+            --shadow: rgba(0, 255, 136, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1433 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-bottom: 2px solid var(--accent-primary);
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .search-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px var(--shadow);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow);
+            border-color: var(--accent-primary);
+        }
+
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .game-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .game-platform {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .game-year {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .cheats-preview {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .cheat-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-primary);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .close-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .cheat-item {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .cheat-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .cheat-code {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-secondary);
+            margin: 0.5rem 0;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .cheat-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">⚡ CHEATVAULT</div>
+        <div class="tagline">UNLOCK THE SECRETS • MASTER THE GAME</div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalGames">0</div>
+                <div class="stat-label">Total Games</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCheats">0</div>
+                <div class="stat-label">Cheat Codes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="platforms">0</div>
+                <div class="stat-label">Platforms</div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search for games, cheats, or platforms...">
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All Games</button>
+                <button class="filter-btn" data-filter="PC">PC</button>
+                <button class="filter-btn" data-filter="PlayStation">PlayStation</button>
+                <button class="filter-btn" data-filter="Xbox">Xbox</button>
+                <button class="filter-btn" data-filter="Nintendo">Nintendo</button>
+                <button class="filter-btn" data-filter="Classic">Classic/Retro</button>
+                <button class="filter-btn" data-filter="Modern">Modern</button>
+            </div>
+        </div>
+
+        <div class="games-grid" id="gamesGrid"></div>
+        <div class="no-results" id="noResults" style="display: none;">
+            No games found. Try a different search or filter.
+        </div>
+    </div>
+
+    <div class="modal" id="cheatModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle"></h2>
+                    <div id="modalPlatform" style="margin-top: 0.5rem;"></div>
+                </div>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modalCheats"></div>
+        </div>
+    </div>
+
+    <script>
+        const gamesDatabase = [
+            {
+                title: "Grand Theft Auto: San Andreas",
+                platform: "PC",
+                year: "2004",
+                category: "Classic",
+                cheats: [
+                    { name: "Weapon Set 1", code: "LXGIWYL", description: "Get weapon set 1 (brass knuckles, bat, pistol, shotgun, micro SMG, AK-47, rifle, rocket launcher, molotov, spray paint)" },
+                    { name: "Weapon Set 2", code: "KJKSZPJ", description: "Get weapon set 2 (knife, desert eagle, sawed-off shotgun, tec-9, M4, sniper rifle, flame thrower, grenades, fire extinguisher)" },
+                    { name: "Weapon Set 3", code: "UZUMYMW", description: "Get weapon set 3 (chainsaw, silenced pistol, combat shotgun, MP5, M4, sniper rifle, heat seeking rocket launcher, remote explosives)" },
+                    { name: "Health, Armor, Money", code: "HESOYAM", description: "Get $250,000, full health, and full armor" },
+                    { name: "Infinite Health", code: "BAGUVIX", description: "Gain infinite health" },
+                    { name: "Wanted Level Down", code: "ASNAEB", description: "Clear wanted level" },
+                    { name: "Six Star Wanted Level", code: "BRINGITON", description: "Get six star wanted level" },
+                    { name: "Super Jump", code: "KANGAROO", description: "Jump extremely high" },
+                    { name: "Spawn Jetpack", code: "ROCKETMAN", description: "Spawn a jetpack" },
+                    { name: "Spawn Hydra", code: "JUMPJET", description: "Spawn a Hydra fighter jet" }
+                ]
+            },
+            {
+                title: "The Sims 4",
+                platform: "PC",
+                year: "2014",
+                category: "Modern",
+                cheats: [
+                    { name: "Enable Cheats", code: "testingcheats true", description: "Enable cheat codes (must be entered first)" },
+                    { name: "Add Money", code: "kaching", description: "Add 1,000 Simoleons" },
+                    { name: "Add More Money", code: "motherlode", description: "Add 50,000 Simoleons" },
+                    { name: "Free Real Estate", code: "freerealestate on", description: "Make all lots free" },
+                    { name: "Needs Cheat", code: "sims.fill_all_commodities", description: "Fill all needs for active Sim" },
+                    { name: "Career Promotion", code: "careers.promote [career name]", description: "Promote Sim in current career" },
+                    { name: "Modify Sim", code: "cas.fulleditmode", description: "Enable full edit mode in Create-a-Sim" },
+                    { name: "Reset Sim", code: "resetSim [Firstname] [Lastname]", description: "Reset a stuck Sim" }
+                ]
+            },
+            {
+                title: "Minecraft",
+                platform: "PC",
+                year: "2011",
+                category: "Modern",
+                cheats: [
+                    { name: "Set Time to Day", code: "/time set day", description: "Change time to daytime" },
+                    { name: "Set Time to Night", code: "/time set night", description: "Change time to nighttime" },
+                    { name: "Change Weather", code: "/weather clear", description: "Clear weather" },
+                    { name: "Teleport", code: "/tp [player] [x] [y] [z]", description: "Teleport to coordinates" },
+                    { name: "Give Items", code: "/give [player] [item] [amount]", description: "Give items to player" },
+                    { name: "Gamemode Creative", code: "/gamemode creative", description: "Switch to creative mode" },
+                    { name: "Gamemode Survival", code: "/gamemode survival", description: "Switch to survival mode" },
+                    { name: "Keep Inventory", code: "/gamerule keepInventory true", description: "Keep items on death" }
+                ]
+            },
+            {
+                title: "Age of Empires II",
+                platform: "PC",
+                year: "1999",
+                category: "Classic",
+                cheats: [
+                    { name: "1000 Gold", code: "robin hood", description: "Add 1,000 gold" },
+                    { name: "1000 Food", code: "cheese steak jimmy's", description: "Add 1,000 food" },
+                    { name: "1000 Wood", code: "lumberjack", description: "Add 1,000 wood" },
+                    { name: "1000 Stone", code: "rock on", description: "Add 1,000 stone" },
+                    { name: "Reveal Map", code: "marco", description: "Reveal entire map" },
+                    { name: "Hide Map", code: "polo", description: "Hide map (fog of war returns)" },
+                    { name: "Win Mission", code: "aegis", description: "Instant building and unit creation" },
+                    { name: "Shelby Cobra", code: "how do you turn this on", description: "Spawn a Shelby Cobra car with machine gun" }
+                ]
+            },
+            {
+                title: "Skyrim",
+                platform: "PC",
+                year: "2011",
+                category: "Modern",
+                cheats: [
+                    { name: "Toggle God Mode", code: "tgm", description: "Enable god mode (invincibility, infinite stamina/magicka)" },
+                    { name: "Toggle Collision", code: "tcl", description: "Walk through walls" },
+                    { name: "Add Gold", code: "player.additem 0000000f [amount]", description: "Add gold to inventory" },
+                    { name: "Level Up", code: "player.advlevel", description: "Advance one level" },
+                    { name: "Add Perk Points", code: "player.modav carryweight [number]", description: "Add carry weight" },
+                    { name: "Unlock Perk", code: "player.addperk [perk ID]", description: "Add specific perk" },
+                    { name: "Complete Quest", code: "completequest [quest ID]", description: "Complete a quest" },
+                    { name: "Kill Target", code: "kill", description: "Kill selected target" }
+                ]
+            },
+            {
+                title: "Doom (1993)",
+                platform: "PC",
+                year: "1993",
+                category: "Classic",
+                cheats: [
+                    { name: "God Mode", code: "iddqd", description: "Enable god mode" },
+                    { name: "All Weapons & Ammo", code: "idkfa", description: "Get all weapons, ammo, keys, and armor" },
+                    { name: "Chainsaw", code: "idchoppers", description: "Get chainsaw" },
+                    { name: "No Clipping", code: "idspispopd", description: "Walk through walls" },
+                    { name: "Level Warp", code: "idclev[episode][map]", description: "Warp to specific level (e.g., idclev11)" },
+                    { name: "Show Map", code: "iddt", description: "Show entire map (enter multiple times for full reveal)" },
+                    { name: "Invincibility", code: "idbeholdv", description: "Temporary invincibility" },
+                    { name: "Berserker Strength", code: "idbeholds", description: "Berserk power-up" }
+                ]
+            },
+            {
+                title: "Fallout 4",
+                platform: "PC",
+                year: "2015",
+                category: "Modern",
+                cheats: [
+                    { name: "God Mode", code: "tgm", description: "Enable god mode" },
+                    { name: "Immortal Mode", code: "tim", description: "Can take damage but won't die" },
+                    { name: "No Clip", code: "tcl", description: "Walk through walls and fly" },
+                    { name: "Add Item", code: "player.additem [item code] [amount]", description: "Add items to inventory" },
+                    { name: "Add Caps", code: "player.additem 0000000f [amount]", description: "Add bottle caps" },
+                    { name: "Unlock Door/Terminal", code: "unlock", description: "Unlock selected door or terminal" },
+                    { name: "Set Player Level", code: "player.setlevel [number]", description: "Set your level" },
+                    { name: "Kill Target", code: "kill", description: "Kill targeted NPC/creature" }
+                ]
+            },
+            {
+                title: "Mortal Kombat 3",
+                platform: "Nintendo",
+                year: "1995",
+                category: "Classic",
+                cheats: [
+                    { name: "Blood Code", code: "A, B, A, C, A, B, B", description: "Enable blood (SNES version)" },
+                    { name: "Play as Smoke", code: "On character select: Hold HP+HK+BL+Run, pick Kano or Sonya", description: "Unlock Smoke as playable character" },
+                    { name: "Play as Motaro", code: "On character select: Hold HP+LP+BL, pick Kano (3 times)", description: "Play as Motaro" },
+                    { name: "Player 1 Half Energy", code: "1,1,0 before 'Fight'", description: "Start with half energy" },
+                    { name: "Fast Uppercut", code: "Hold HP+HK, release", description: "Quick uppercut recovery" }
+                ]
+            },
+            {
+                title: "Starcraft",
+                platform: "PC",
+                year: "1998",
+                category: "Classic",
+                cheats: [
+                    { name: "Show Map", code: "black sheep wall", description: "Reveal entire map" },
+                    { name: "God Mode", code: "power overwhelming", description: "Enable god mode for units" },
+                    { name: "Free Units", code: "operation cwal", description: "Fast building and unit production" },
+                    { name: "Instant Win", code: "there is no cow level", description: "Win current mission" },
+                    { name: "Minerals", code: "show me the money", description: "Add 10,000 minerals and gas" },
+                    { name: "Free Tech", code: "something for nothing", description: "All upgrades available" },
+                    { name: "No Supply Limit", code: "food for thought", description: "Remove supply/psi limit" },
+                    { name: "Invincible", code: "the gathering", description: "Unlimited energy for spells" }
+                ]
+            },
+            {
+                title: "Red Dead Redemption 2",
+                platform: "PC",
+                year: "2019",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Stamina", code: "You Flourish Before You Die", description: "Infinite stamina for Arthur" },
+                    { name: "Infinite Dead Eye", code: "Be Greedy Only For Foresight", description: "Infinite Dead Eye" },
+                    { name: "Create War Horse", code: "You Are A Beast Built For War", description: "Spawn War Horse" },
+                    { name: "Create Superior Horse", code: "You Want Something New", description: "Spawn superior horse" },
+                    { name: "All Weapons", code: "Greed is now a virtue", description: "Unlock all weapons" },
+                    { name: "Unlock Gun Rush", code: "Death is silence", description: "Unlock Gun Rush mode" },
+                    { name: "Drunk", code: "A fool on command", description: "Arthur becomes drunk" }
+                ]
+            },
+            {
+                title: "Half-Life",
+                platform: "PC",
+                year: "1998",
+                category: "Classic",
+                cheats: [
+                    { name: "God Mode", code: "sv_cheats 1; god", description: "Enable god mode (must enable cheats first)" },
+                    { name: "No Clip", code: "sv_cheats 1; noclip", description: "Walk through walls" },
+                    { name: "All Weapons", code: "impulse 101", description: "Get all weapons and full ammo" },
+                    { name: "Refill Health", code: "impulse 102", description: "Restore full health and armor" },
+                    { name: "Show FPS", code: "cl_showfps 1", description: "Display frames per second" },
+                    { name: "Notarget", code: "notarget", description: "Enemies won't attack you" }
+                ]
+            },
+            {
+                title: "Contra (NES)",
+                platform: "Nintendo",
+                year: "1988",
+                category: "Classic",
+                cheats: [
+                    { name: "30 Lives", code: "Up, Up, Down, Down, Left, Right, Left, Right, B, A, Start", description: "The famous Konami code - gives 30 lives instead of 3" },
+                    { name: "10 Lives (2P)", code: "Up, Up, Down, Down, Left, Right, Left, Right, B, A, Select, Start", description: "30 lives for 2-player mode" },
+                    { name: "Sound Test", code: "Hold A+B, press Start", description: "Access sound test menu" }
+                ]
+            },
+            {
+                title: "Terraria",
+                platform: "PC",
+                year: "2011",
+                category: "Modern",
+                cheats: [
+                    { name: "Journey Mode", code: "Create character in Journey Mode", description: "Access built-in cheat menu with god mode, item duplication, etc." },
+                    { name: "Item Duplication", code: "Journey Mode menu", description: "Duplicate any item infinitely" },
+                    { name: "God Mode Toggle", code: "Journey Mode powers", description: "Toggle invincibility" },
+                    { name: "Time Control", code: "Journey Mode powers", description: "Speed up or freeze time" },
+                    { name: "Enemy Spawn Rate", code: "Journey Mode powers", description: "Control enemy spawn rates" }
+                ]
+            },
+            {
+                title: "Warcraft III",
+                platform: "PC",
+                year: "2002",
+                category: "Classic",
+                cheats: [
+                    { name: "God Mode", code: "WhosYourDaddy", description: "Enable god mode and one-hit kills" },
+                    { name: "Instant Win", code: "TheDudeAbides", description: "Fast building/training/research" },
+                    { name: "Resources", code: "KeyserSoze [amount]", description: "Add gold (default 500)" },
+                    { name: "Lumber", code: "LeafItToMe [amount]", description: "Add lumber (default 500)" },
+                    { name: "Tech Tree", code: "PointBreak", description: "Remove tech tree requirements" },
+                    { name: "Reveal Map", code: "IseeDeadPeople", description: "Remove fog of war" },
+                    { name: "No Victory", code: "StrengthAndHonor", description: "Cannot win/lose" },
+                    { name: "Level Select", code: "Motherland [race] [level]", description: "Select campaign level" }
+                ]
+            },
+            {
+                title: "Sonic The Hedgehog 2",
+                platform: "Nintendo",
+                year: "1992",
+                category: "Classic",
+                cheats: [
+                    { name: "Level Select", code: "Sound Test: 19, 65, 09, 17, then press Start", description: "Access level select menu" },
+                    { name: "Debug Mode", code: "After Level Select code: 01, 09, 09, 02, 01, 01, 02, 04, then press Start", description: "Enable debug mode with level select" },
+                    { name: "All Chaos Emeralds", code: "Sound Test: 04, 01, 02, 06, then press Start", description: "Get all 7 Chaos Emeralds" },
+                    { name: "Super Sonic", code: "Get all emeralds + 50 rings, jump", description: "Transform into Super Sonic" }
+                ]
+            },
+            {
+                title: "Stardew Valley",
+                platform: "PC",
+                year: "2016",
+                category: "Modern",
+                cheats: [
+                    { name: "Item Spawner", code: "Name character [item ID] for item spawn", description: "Name yourself with item codes to spawn items" },
+                    { name: "Wallpaper Exploit", code: "Use wallpaper in incubator/crystalarium", description: "Duplicate items using wallpaper glitch" },
+                    { name: "Save Editor", code: "Use save file editor external tool", description: "Edit money, skills, relationships directly in save file" },
+                    { name: "Mod Support", code: "Install SMAPI framework", description: "Use mods like CJB Cheats Menu for in-game cheats" }
+                ]
+            },
+            {
+                title: "Age of Mythology",
+                platform: "PC",
+                year: "2002",
+                category: "Classic",
+                cheats: [
+                    { name: "Reveal Map", code: "ILLUMINATION", description: "Reveal entire map" },
+                    { name: "Resources", code: "JUNK FOOD NIGHT", description: "Add 1,000 food" },
+                    { name: "Gold", code: "TROJAN HORSE FOR SALE", description: "Add 1,000 gold" },
+                    { name: "Wood", code: "LAY OF THE LAND", description: "Add 1,000 wood" },
+                    { name: "Divine Power", code: "CHANNEL SURFING", description: "Add 1,000 favor" },
+                    { name: "Instant Build", code: "GOATUNHEIM", description: "Get goat units" },
+                    { name: "Win Game", code: "ISIS HEAR MY PLEA", description: "Instantly win scenario" },
+                    { name: "Flying Units", code: "FLYING PURPLE HIPPO", description: "Spawn flying hippo unit" }
+                ]
+            },
+            {
+                title: "The Witcher 3",
+                platform: "PC",
+                year: "2015",
+                category: "Modern",
+                cheats: [
+                    { name: "Enable Console", code: "Add 'DBGConsoleOn=true' to general.ini", description: "Enable debug console" },
+                    { name: "God Mode", code: "god", description: "Enable god mode" },
+                    { name: "Add Money", code: "addmoney(amount)", description: "Add crowns to inventory" },
+                    { name: "Level Up", code: "levelup", description: "Gain one level" },
+                    { name: "Add Item", code: "additem('item_code')", description: "Add specific item to inventory" },
+                    { name: "Unlimited Weight", code: "Cat(1)", description: "Enable Cat potion effect (see in dark, no weight limit)" },
+                    { name: "Heal", code: "healme", description: "Restore health to full" },
+                    { name: "All Recipes", code: "addcraft", description: "Learn all crafting recipes" }
+                ]
+            },
+            {
+                title: "Super Mario Bros. 3",
+                platform: "Nintendo",
+                year: "1988",
+                category: "Classic",
+                cheats: [
+                    { name: "Infinite Lives", code: "Level 2, step on Koopa: Get 1-up, repeat", description: "Farm infinite lives in World 2" },
+                    { name: "White Toad House", code: "Collect coins ending in matching digits (11,22,etc)", description: "Special Toad House appears with rare items" },
+                    { name: "Anchor Skip", code: "Hold A when level ends", description: "Keep power-up through anchor level" },
+                    { name: "Warp Whistle", code: "Get white block in 1-3, fly up", description: "Find warp whistle behind the goal" },
+                    { name: "Hidden 1-Up", code: "Various secret locations in each world", description: "Hidden 1-ups behind scenery throughout game" }
+                ]
+            },
+            {
+                title: "Diablo II",
+                platform: "PC",
+                year: "2000",
+                category: "Classic",
+                cheats: [
+                    { name: "Single Player Mods", code: "Use Hero Editor tool", description: "Edit character stats, items, skills (single player only)" },
+                    { name: "Cow Level", code: "Combine Wirt's Leg + Tome of Town Portal in Horadric Cube", description: "Access secret cow level" },
+                    { name: "Level Skip", code: "Type '/players X' (1-8) in chat", description: "Set difficulty as if X players in game (single player)" },
+                    { name: "Runeword Guide", code: "Reference external runeword formulas", description: "Create powerful runeword items" }
+                ]
+            },
+            {
+                title: "Pac-Man Championship Edition",
+                platform: "PC",
+                year: "2007",
+                category: "Classic",
+                cheats: [
+                    { name: "Extra Lives", code: "Collect fruit efficiently", description: "Every 20,000 points grants extra life" },
+                    { name: "Slow Motion", code: "When eating power pellet, use wisely", description: "Ghost train creates slow-mo effect" },
+                    { name: "Score Multiplier", code: "Eat ghosts in succession", description: "Chain ghost eating for 200-400-800-1600 points" },
+                    { name: "Unlock All Mazes", code: "Complete Championship mode once", description: "Unlock all maze variations" },
+                    { name: "Practice Mode", code: "Use Time Trial mode", description: "Practice without score pressure" }
+                ]
+            },
+            {
+                title: "Cities: Skylines",
+                platform: "PC",
+                year: "2015",
+                category: "Modern",
+                cheats: [
+                    { name: "Unlimited Money", code: "Open console (~), type: 'cashmoney [amount]'", description: "Add unlimited funds (with mods)" },
+                    { name: "Unlock All", code: "Enable 'Unlock All' mod", description: "Unlock all buildings and milestones" },
+                    { name: "Free Money Mod", code: "Install 'Unlimited Money' mod from workshop", description: "Get infinite money permanently" },
+                    { name: "Hard Mode Toggle", code: "Enable/disable in options", description: "Toggle resource management difficulty" },
+                    { name: "Infinite Resources", code: "Use 81 Tiles mod + Resource brush", description: "Add infinite natural resources" },
+                    { name: "No Death", code: "Use 'No Deathcare' mod", description: "Citizens don't need cemeteries" },
+                    { name: "Demand Control", code: "Use mods to control RCI demand", description: "Manually set residential/commercial/industrial demand" }
+                ]
+            },
+            {
+                title: "Grand Theft Auto V",
+                platform: "PC",
+                year: "2013",
+                category: "Modern",
+                cheats: [
+                    { name: "Invincibility", code: "PAINKILLER (1-999-724-6545537)", description: "5 minute invincibility" },
+                    { name: "Max Health & Armor", code: "TURTLE (1-999-887-853)", description: "Restore health and armor to full" },
+                    { name: "Weapons & Ammo", code: "TOOLUP (1-999-866-587)", description: "Get all weapons with ammo" },
+                    { name: "Lower Wanted Level", code: "LAWYERUP (1-999-529-93787)", description: "Decrease wanted level by one star" },
+                    { name: "Raise Wanted Level", code: "FUGITIVE (1-999-384-48483)", description: "Increase wanted level by one star" },
+                    { name: "Fast Run", code: "CATCHME (1-999-228-2463)", description: "Run much faster" },
+                    { name: "Spawn Buzzard", code: "BUZZOFF (1-999-289-9633)", description: "Spawn a Buzzard helicopter" },
+                    { name: "Skyfall", code: "SKYFALL (1-999-759-3255)", description: "Drop from the sky" }
+                ]
+            },
+            {
+                title: "The Elder Scrolls IV: Oblivion",
+                platform: "PC",
+                year: "2006",
+                category: "Classic",
+                cheats: [
+                    { name: "Toggle God Mode", code: "tgm", description: "Enable god mode" },
+                    { name: "Toggle Collision", code: "tcl", description: "Walk through walls" },
+                    { name: "Add Gold", code: "player.additem 0000000f [amount]", description: "Add gold" },
+                    { name: "Level Up", code: "advlevel", description: "Advance to next level" },
+                    { name: "Add Item", code: "player.additem [item code] [amount]", description: "Add items to inventory" },
+                    { name: "Kill Target", code: "kill", description: "Kill selected NPC" },
+                    { name: "Unlock", code: "unlock", description: "Unlock selected door/container" }
+                ]
+            },
+            {
+                title: "Super Mario 64",
+                platform: "Nintendo",
+                year: "1996",
+                category: "Classic",
+                cheats: [
+                    { name: "Backwards Long Jump", code: "Face away from stairs/slope, long jump repeatedly", description: "Build infinite speed to skip areas" },
+                    { name: "Infinite Lives", code: "Get 100 coins in Bob-omb Battlefield repeatedly", description: "Farm lives in first level" },
+                    { name: "Wing Cap", code: "Get red switch, collect red blocks", description: "Fly around levels" },
+                    { name: "Metal Cap", code: "Get green switch, collect green blocks", description: "Walk underwater and be invincible" },
+                    { name: "Vanish Cap", code: "Get blue switch, collect blue blocks", description: "Walk through certain walls" }
+                ]
+            },
+            {
+                title: "Tony Hawk's Pro Skater 2",
+                platform: "PlayStation",
+                year: "2000",
+                category: "Classic",
+                cheats: [
+                    { name: "Perfect Balance", code: "At main menu: Hold L1, press X, Triangle, Circle, Square, Triangle, Up, Down", description: "Never fall off rails/lip tricks" },
+                    { name: "All Characters", code: "At main menu: Hold L1, press X, Square, Triangle, Circle, X, Square, Triangle, Circle", description: "Unlock all skaters" },
+                    { name: "Max Stats", code: "At main menu: Hold L1, press Circle, Square, Triangle, X, Square, Triangle, Circle, X", description: "Max out all skater stats" },
+                    { name: "All Levels", code: "At main menu: Hold L1, press Triangle, X, Square, Circle, X, Triangle, Circle, Square", description: "Unlock all levels" }
+                ]
+            },
+            {
+                title: "Dark Souls",
+                platform: "PC",
+                year: "2011",
+                category: "Modern",
+                cheats: [
+                    { name: "Item Spawn", code: "Use Cheat Engine table", description: "Spawn any item in game (single player only)" },
+                    { name: "Infinite Health", code: "Use trainer tool", description: "Never die (offline only)" },
+                    { name: "Infinite Stamina", code: "Use trainer tool", description: "Unlimited stamina for attacks/rolls" },
+                    { name: "Soul Editor", code: "Use save editor tool", description: "Edit soul count and level" },
+                    { name: "Bonfire Warp", code: "Use debug menu mod", description: "Warp to any bonfire instantly" }
+                ]
+            },
+            {
+                title: "Metal Gear Solid",
+                platform: "PlayStation",
+                year: "1998",
+                category: "Classic",
+                cheats: [
+                    { name: "Bandana (Infinite Ammo)", code: "Complete game, Meryl ending, submit to torture", description: "Unlock infinite ammo" },
+                    { name: "Stealth Suit", code: "Complete game, Otacon ending, don't submit to torture", description: "Become invisible to enemies" },
+                    { name: "Tuxedo", code: "Complete game on any difficulty", description: "Unlock Snake's tuxedo" },
+                    { name: "Demo Theater", code: "Complete game once", description: "Watch all cutscenes" }
+                ]
+            },
+            {
+                title: "Resident Evil 4",
+                platform: "PC",
+                year: "2005",
+                category: "Classic",
+                cheats: [
+                    { name: "Infinite Ammo", code: "Complete game, buy weapon, fully upgrade it", description: "Unlock infinite ammo for specific weapons" },
+                    { name: "Chicago Typewriter", code: "Beat the game, costs 1,000,000 Pesetas", description: "Unlimited ammo tommy gun" },
+                    { name: "Handcannon", code: "Get 5-star rank on all Mercenaries stages", description: "Magnum with infinite ammo when upgraded" },
+                    { name: "P.R.L. 412", code: "Complete main game, costs 1,000,000 Pesetas", description: "Laser weapon with unlimited ammo" },
+                    { name: "Matilda", code: "Complete main game", description: "Unlock Leon's handgun" }
+                ]
+            },
+            {
+                title: "Portal 2",
+                platform: "PC",
+                year: "2011",
+                category: "Modern",
+                cheats: [
+                    { name: "Enable Console", code: "Add -console to launch options", description: "Enable developer console" },
+                    { name: "No Clip", code: "sv_cheats 1; noclip", description: "Fly through walls" },
+                    { name: "God Mode", code: "sv_cheats 1; god", description: "Enable invincibility" },
+                    { name: "Give Portal Gun", code: "upgrade_portalgun", description: "Get portal gun early" },
+                    { name: "Change Gravity", code: "sv_gravity [number]", description: "Change gravity (default 600)" },
+                    { name: "Notarget", code: "notarget", description: "Turrets won't attack you" }
+                ]
+            },
+            {
+                title: "Final Fantasy VII",
+                platform: "PlayStation",
+                year: "1997",
+                category: "Classic",
+                cheats: [
+                    { name: "GameShark: Max Gil", code: "8009D260 967F, 8009D262 0098", description: "Get maximum money (9,999,999 Gil)" },
+                    { name: "All Materia", code: "Use GameShark materia codes", description: "Get all materia instantly" },
+                    { name: "Max HP/MP", code: "Character-specific GameShark codes", description: "Set max HP and MP to 9999" },
+                    { name: "Invincibility", code: "GameShark code", description: "Never take damage in battle" },
+                    { name: "Master Materia", code: "Use save editor", description: "Get all mastered materia" }
+                ]
+            },
+            {
+                title: "Halo: Combat Evolved",
+                platform: "Xbox",
+                year: "2001",
+                category: "Classic",
+                cheats: [
+                    { name: "Devmode (PC)", code: "Run with -console -devmode parameters", description: "Enable cheat commands on PC" },
+                    { name: "Deathless", code: "cheat_deathless_player 1", description: "God mode (PC)" },
+                    { name: "All Weapons", code: "cheat_all_weapons", description: "Get all weapons (PC)" },
+                    { name: "Infinite Ammo", code: "cheat_infinite_ammo 1", description: "Never run out of ammo (PC)" },
+                    { name: "Bump Possession", code: "cheat_bump_possession", description: "Control enemies (PC)" }
+                ]
+            },
+            {
+                title: "BioShock",
+                platform: "PC",
+                year: "2007",
+                category: "Classic",
+                cheats: [
+                    { name: "God Mode", code: "Open console with ~, type: god", description: "Enable invincibility" },
+                    { name: "Give Item", code: "giveitem [item code]", description: "Give yourself items" },
+                    { name: "Infinite EVE", code: "igbigbucks", description: "Unlimited EVE for plasmids" },
+                    { name: "Fly Mode", code: "fly", description: "Fly around the level" },
+                    { name: "No Clip", code: "ghost", description: "Walk through walls" },
+                    { name: "Teleport", code: "teleport", description: "Teleport to crosshair location" }
+                ]
+            },
+            {
+                title: "Call of Duty 4: Modern Warfare",
+                platform: "PC",
+                year: "2007",
+                category: "Classic",
+                cheats: [
+                    { name: "Enable Console", code: "Add +set thereisacow 1337 +set cl_paused 1 to shortcut", description: "Enable developer console" },
+                    { name: "God Mode", code: "/god", description: "Invincibility (single player)" },
+                    { name: "No Clip", code: "/noclip", description: "Walk through walls" },
+                    { name: "All Weapons", code: "/give all", description: "Get all weapons" },
+                    { name: "Infinite Ammo", code: "/give ammo", description: "Max ammo for all guns" },
+                    { name: "Jump Height", code: "/jump_height [number]", description: "Change jump height" }
+                ]
+            },
+            {
+                title: "The Legend of Zelda: Ocarina of Time",
+                platform: "Nintendo",
+                year: "1998",
+                category: "Classic",
+                cheats: [
+                    { name: "GameShark: Infinite Health", code: "8111A600 0140", description: "Never lose health" },
+                    { name: "All Items", code: "Multiple GameShark codes", description: "Get all inventory items" },
+                    { name: "Infinite Rupees", code: "8111A66C 03E7", description: "Max rupees (999)" },
+                    { name: "Max Heart Pieces", code: "8011A609 0014", description: "Get 20 heart containers" },
+                    { name: "Infinite Magic", code: "D011A60F 0008, 8011A60F 0001", description: "Unlimited magic power" }
+                ]
+            },
+            {
+                title: "Street Fighter II",
+                platform: "Nintendo",
+                year: "1992",
+                category: "Classic",
+                cheats: [
+                    { name: "Play as Same Character", code: "Both players hold Start, select character", description: "Both players pick same fighter" },
+                    { name: "Play as Balrog", code: "Select anyone, hold Start, press up or down until Balrog", description: "Unlock Balrog (boss character)" },
+                    { name: "Play as Vega", code: "Select anyone, hold Start, press up or down until Vega", description: "Unlock Vega (boss character)" },
+                    { name: "Play as Sagat", code: "Select anyone, hold Start, press up or down until Sagat", description: "Unlock Sagat (boss character)" },
+                    { name: "Play as M. Bison", code: "Select anyone, hold Start, press up or down until Bison", description: "Unlock M. Bison (final boss)" }
+                ]
+            },
+            {
+                title: "Mass Effect 2",
+                platform: "PC",
+                year: "2010",
+                category: "Modern",
+                cheats: [
+                    { name: "Enable Console", code: "Edit Coalesced.ini, set ConsoleKey=Tilde", description: "Enable cheat console" },
+                    { name: "God Mode", code: "god", description: "Invincibility" },
+                    { name: "Infinite Ammo", code: "SetWeaponAmmo 999", description: "Never reload" },
+                    { name: "Give Credits", code: "GiveSuperCredits 999999", description: "Add credits" },
+                    { name: "Give Talent Points", code: "GiveTalentPoints [number]", description: "Add skill points" },
+                    { name: "No Clip", code: "Ghost", description: "Walk through walls" }
+                ]
+            },
+            {
+                title: "Dead Space",
+                platform: "PC",
+                year: "2008",
+                category: "Classic",
+                cheats: [
+                    { name: "Refill Oxygen", code: "Press ` key, type: Refill oxygen", description: "Restore oxygen in space" },
+                    { name: "Refill Stasis", code: "Refill stasis", description: "Restore stasis energy" },
+                    { name: "God Mode", code: "god 1", description: "Enable invincibility" },
+                    { name: "All Weapons", code: "unlockallweapons", description: "Unlock all weapons" },
+                    { name: "Max Ammo", code: "giveall", description: "Max ammo for all weapons" }
+                ]
+            },
+            {
+                title: "Doom Eternal",
+                platform: "PC",
+                year: "2020",
+                category: "Modern",
+                cheats: [
+                    { name: "IDDQD", code: "Classic cheat code unlocked in game", description: "Sentinel Armor (god mode)" },
+                    { name: "IDKFA", code: "Classic cheat code unlocked in game", description: "All weapons and ammo" },
+                    { name: "IDCLIP", code: "Classic cheat code unlocked in game", description: "Walk through walls" },
+                    { name: "Infinite Ammo", code: "Unlock cheat in game menu", description: "Unlimited ammunition" },
+                    { name: "All Runes", code: "Unlock cheat in game menu", description: "Activate all runes at once" }
+                ]
+            },
+            {
+                title: "Borderlands 2",
+                platform: "PC",
+                year: "2012",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Ammo", code: "Use Cheat Engine or trainer", description: "Never run out of ammo" },
+                    { name: "God Mode", code: "Use trainer tool", description: "Invincibility enabled" },
+                    { name: "Infinite Golden Keys", code: "Use save editor", description: "Unlimited golden keys for chest" },
+                    { name: "Money Editor", code: "Use save editor", description: "Edit your money amount" },
+                    { name: "Level Editor", code: "Use save editor", description: "Set character level" }
+                ]
+            },
+            {
+                title: "Dishonored",
+                platform: "PC",
+                year: "2012",
+                category: "Modern",
+                cheats: [
+                    { name: "God Mode", code: "Press ~ key, type: god", description: "Enable invincibility" },
+                    { name: "Infinite Mana", code: "slomo 0 (saves mana usage)", description: "Freeze time, use powers freely" },
+                    { name: "All Powers", code: "Use trainer/Cheat Engine", description: "Unlock all supernatural powers" },
+                    { name: "Infinite Money", code: "Use save editor", description: "Edit coin amount" },
+                    { name: "Teleport", code: "ghost (fly mode)", description: "Fly around the map" }
+                ]
+            },
+            {
+                title: "Left 4 Dead 2",
+                platform: "PC",
+                year: "2009",
+                category: "Classic",
+                cheats: [
+                    { name: "Enable Console", code: "Options > Keyboard > Enable Console (~)", description: "Enable developer console" },
+                    { name: "God Mode", code: "sv_cheats 1; god", description: "Invincibility" },
+                    { name: "Infinite Ammo", code: "sv_infinite_ammo 1", description: "Never reload" },
+                    { name: "No Clip", code: "noclip", description: "Fly through walls" },
+                    { name: "Give Item", code: "give [weapon name]", description: "Spawn any weapon" },
+                    { name: "Director No Spawns", code: "director_no_specials 1", description: "Disable special infected" }
+                ]
+            },
+            {
+                title: "Sonic Adventure 2",
+                platform: "Nintendo",
+                year: "2001",
+                category: "Classic",
+                cheats: [
+                    { name: "Level Select", code: "Action Replay code", description: "Select any level" },
+                    { name: "All Emblems", code: "Action Replay code", description: "Unlock all 180 emblems" },
+                    { name: "Infinite Rings", code: "Action Replay code", description: "Never lose rings" },
+                    { name: "Max Score", code: "Action Replay code", description: "Get maximum score" },
+                    { name: "All Characters", code: "Complete all stories", description: "Unlock all playable characters" }
+                ]
+            },
+            {
+                title: "Crash Bandicoot",
+                platform: "PlayStation",
+                year: "1996",
+                category: "Classic",
+                cheats: [
+                    { name: "99 Lives", code: "At password screen: Triangle, Triangle, Triangle, Triangle, X, Square, Triangle, Triangle, Triangle, Triangle, Square, X, Triangle, Circle, Triangle, Triangle, Circle, Circle, Circle, X, X, X, X, X", description: "Start with 99 lives" },
+                    { name: "Level Select", code: "Hold L1+R1+R2+L2 at title screen, press Start", description: "Access level select" },
+                    { name: "All Gems", code: "Specific password combination", description: "Get all gems" },
+                    { name: "View Credits", code: "Hold Up+X at title screen", description: "Watch end credits" }
+                ]
+            },
+            {
+                title: "Civilization VI",
+                platform: "PC",
+                year: "2016",
+                category: "Modern",
+                cheats: [
+                    { name: "Debug Mode", code: "Edit AppOptions.txt, EnableDebugMenu 1", description: "Enable debug console" },
+                    { name: "Reveal Map", code: "Press ~ then: Reveal All", description: "Remove fog of war" },
+                    { name: "Add Gold", code: "Use debug menu or trainer", description: "Add gold to treasury" },
+                    { name: "Instant Production", code: "Use trainer tool", description: "Complete production instantly" },
+                    { name: "Extra Settlers", code: "Use debug menu", description: "Spawn additional settlers" }
+                ]
+            },
+            {
+                title: "Tomb Raider (2013)",
+                platform: "PC",
+                year: "2013",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Ammo", code: "Use trainer tool", description: "Unlimited ammunition" },
+                    { name: "God Mode", code: "Use trainer tool", description: "Invincibility" },
+                    { name: "No Recoil", code: "Use trainer tool", description: "Remove weapon recoil" },
+                    { name: "Skill Points", code: "Use save editor", description: "Add skill points" },
+                    { name: "Unlimited Resources", code: "Use trainer tool", description: "Infinite crafting materials" }
+                ]
+            },
+            {
+                title: "God of War (2018)",
+                platform: "PlayStation",
+                year: "2018",
+                category: "Modern",
+                cheats: [
+                    { name: "Shield Armor Set", code: "Use save editor (PC)", description: "Get best armor early" },
+                    { name: "Infinite Rage", code: "Use trainer (PC)", description: "Unlimited Spartan Rage" },
+                    { name: "Max Hacksilver", code: "Use save editor (PC)", description: "Edit currency amount" },
+                    { name: "All Skills", code: "Use save editor (PC)", description: "Unlock entire skill tree" },
+                    { name: "God Mode", code: "Use trainer (PC)", description: "Invincibility" }
+                ]
+            },
+            {
+                title: "Spider-Man (2018)",
+                platform: "PlayStation",
+                year: "2018",
+                category: "Modern",
+                cheats: [
+                    { name: "All Suits", code: "Use save editor", description: "Unlock all Spider-Man suits" },
+                    { name: "Max Tokens", code: "Use save editor", description: "Get unlimited tokens" },
+                    { name: "Level 50", code: "Use save editor", description: "Max character level" },
+                    { name: "All Skills", code: "Use save editor", description: "Unlock entire skill tree" },
+                    { name: "All Gadgets", code: "Use save editor", description: "Unlock all gadgets" }
+                ]
+            },
+            {
+                title: "Assassin's Creed II",
+                platform: "PC",
+                year: "2009",
+                category: "Classic",
+                cheats: [
+                    { name: "Unlimited Ammo", code: "Use trainer tool", description: "Infinite throwing knives/bullets" },
+                    { name: "Infinite Health", code: "Use trainer tool", description: "Never die" },
+                    { name: "Add Florins", code: "Use trainer or Cheat Engine", description: "Add money" },
+                    { name: "Unlock All Weapons", code: "Use save editor", description: "Get all weapons early" },
+                    { name: "Increase Notoriety", code: "Use trainer", description: "Control notoriety level" }
+                ]
+            },
+            {
+                title: "Batman: Arkham City",
+                platform: "PC",
+                year: "2011",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Health", code: "Use trainer tool", description: "Never lose health" },
+                    { name: "Infinite Gadgets", code: "Use trainer tool", description: "Unlimited gadget uses" },
+                    { name: "XP Editor", code: "Use trainer tool", description: "Add experience points" },
+                    { name: "Upgrade Points", code: "Use save editor", description: "Get upgrade points" },
+                    { name: "All Riddler Trophies", code: "Use save editor", description: "Collect all collectibles" }
+                ]
+            },
+            {
+                title: "Far Cry 3",
+                platform: "PC",
+                year: "2012",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Ammo", code: "Use trainer tool", description: "Never run out of bullets" },
+                    { name: "God Mode", code: "Use trainer tool", description: "Invincibility" },
+                    { name: "Infinite Money", code: "Use Cheat Engine", description: "Unlimited cash" },
+                    { name: "No Reload", code: "Use trainer tool", description: "Never need to reload" },
+                    { name: "Skill Points", code: "Use trainer/Cheat Engine", description: "Add skill points" }
+                ]
+            },
+            {
+                title: "Ratchet & Clank",
+                platform: "PlayStation",
+                year: "2002",
+                category: "Classic",
+                cheats: [
+                    { name: "Big Head Mode", code: "Pause > L2, R2, L2, R2, Up, Down, Left, Right", description: "Characters have big heads" },
+                    { name: "Mirrored Levels", code: "Pause > L2, R2, L2, R2, Up, Down, Left, Left", description: "Flip levels horizontally" },
+                    { name: "Unlock Everything", code: "Use Action Replay codes", description: "Get all weapons and items" },
+                    { name: "Infinite Ammo", code: "Use Action Replay codes", description: "Never run out of ammo" },
+                    { name: "Max Bolts", code: "Use Action Replay codes", description: "Get maximum currency" }
+                ]
+            },
+            {
+                title: "Need for Speed: Most Wanted",
+                platform: "PC",
+                year: "2005",
+                category: "Classic",
+                cheats: [
+                    { name: "Unlock Burger King Challenge", code: "burgerking", description: "Unlock special challenge" },
+                    { name: "Castrol Syntec Vinyl", code: "castrol", description: "Unlock special vinyl" },
+                    { name: "Marker on Radar", code: "Edit game files", description: "Show police on radar" },
+                    { name: "Money Editor", code: "Use save editor", description: "Edit your cash amount" },
+                    { name: "Unlock All Cars", code: "Use save editor", description: "Get all vehicles" }
+                ]
+            },
+            {
+                title: "SimCity 4",
+                platform: "PC",
+                year: "2003",
+                category: "Classic",
+                cheats: [
+                    { name: "Add Money", code: "Ctrl+X, type: 'weaknesspays' (adds $1,000)", description: "Get quick cash boost" },
+                    { name: "All Rewards", code: "Ctrl+X, type: 'you don't deserve it'", description: "Unlock all reward buildings" },
+                    { name: "God Mode", code: "Ctrl+X, type: 'hellomynameis'", description: "Unlock all advisor buildings" },
+                    { name: "No Disasters", code: "Ctrl+X, type: 'stopwatch'", description: "Control time and disasters" },
+                    { name: "Free Utilities", code: "Ctrl+X, type: 'fightthepower'", description: "No power needed for buildings" }
+                ]
+            },
+            {
+                title: "Goldeneye 007",
+                platform: "Nintendo",
+                year: "1997",
+                category: "Classic",
+                cheats: [
+                    { name: "All Guns", code: "Facility: Agent in 2:05 or less", description: "Unlock all guns cheat" },
+                    { name: "Invincibility", code: "Egypt: 00 Agent in 6:00 or less", description: "God mode" },
+                    { name: "DK Mode", code: "Runway: Agent in 5:00 or less", description: "Big heads and arms" },
+                    { name: "Tiny Bond", code: "Surface 2: 00 Agent in 4:15 or less", description: "Play as tiny James Bond" },
+                    { name: "No Oddjob", code: "Multiplayer gentleman's rule", description: "Honor system - Oddjob is banned!" }
+                ]
+            },
+            {
+                title: "Elden Ring",
+                platform: "PC",
+                year: "2022",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite HP", code: "Use Cheat Engine table", description: "Never die (offline only)" },
+                    { name: "Infinite FP", code: "Use Cheat Engine table", description: "Unlimited magic/skills" },
+                    { name: "Infinite Stamina", code: "Use Cheat Engine table", description: "Never run out of stamina" },
+                    { name: "Item Spawner", code: "Use Cheat Engine table", description: "Give yourself any item" },
+                    { name: "Rune Editor", code: "Use save editor", description: "Edit rune count" }
+                ]
+            },
+            {
+                title: "Resident Evil 2 (Remake)",
+                platform: "PC",
+                year: "2019",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Ammo", code: "Unlock by completing game on Hardcore with S rank", description: "Never run out of bullets" },
+                    { name: "Unbreakable Knife", code: "Complete all Mr. Raccoon challenges", description: "Knife never breaks" },
+                    { name: "God Mode", code: "Use trainer tool", description: "Invincibility (PC)" },
+                    { name: "Infinite Health", code: "Use trainer tool", description: "Never die (PC)" },
+                    { name: "Item Spawner", code: "Use trainer tool", description: "Spawn any item (PC)" }
+                ]
+            },
+            {
+                title: "No Man's Sky",
+                platform: "PC",
+                year: "2016",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Units", code: "Use save editor", description: "Edit currency to maximum" },
+                    { name: "Infinite Nanites", code: "Use save editor", description: "Max out nanite currency" },
+                    { name: "All Blueprints", code: "Use save editor", description: "Unlock all crafting blueprints" },
+                    { name: "Infinite Resources", code: "Use Cheat Engine", description: "Never run out of materials" },
+                    { name: "Max Ship Stats", code: "Use save editor", description: "Perfect ship stats" },
+                    { name: "Infinite Health", code: "Use Cheat Engine", description: "Never die" },
+                    { name: "Fast Travel", code: "Use save editor", description: "Edit coordinates" },
+                    { name: "Instant Scan", code: "Use Cheat Engine", description: "Scan everything instantly" }
+                ]
+            },
+            {
+                title: "Hollow Knight",
+                platform: "PC",
+                year: "2017",
+                category: "Modern",
+                cheats: [
+                    { name: "Infinite Health", code: "Use debug mod", description: "Invincibility mode" },
+                    { name: "Infinite Soul", code: "Use debug mod", description: "Unlimited spell casting" },
+                    { name: "Give All Items", code: "Use debug mod", description: "Get all charms and items" },
+                    { name: "Unlock All Areas", code: "Use debug mod", description: "Access entire map" },
+                    { name: "Super Speed", code: "Use debug mod", description: "Move faster through world" },
+                    { name: "Infinite Geo", code: "Use Cheat Engine", description: "Unlimited currency" },
+                    { name: "No Clip", code: "Use debug mod", description: "Fly through walls" },
+                    { name: "Kill All Enemies", code: "Use debug mod", description: "Clear room instantly" }
+                ]
+            }
+        ];
+
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        function initializeStats() {
+            const totalGames = gamesDatabase.length;
+            const totalCheats = gamesDatabase.reduce((sum, game) => sum + game.cheats.length, 0);
+            const platforms = [...new Set(gamesDatabase.map(game => game.platform))].length;
+
+            document.getElementById('totalGames').textContent = totalGames;
+            document.getElementById('totalCheats').textContent = totalCheats;
+            document.getElementById('platforms').textContent = platforms;
+        }
+
+        function renderGames() {
+            const gamesGrid = document.getElementById('gamesGrid');
+            const noResults = document.getElementById('noResults');
+            
+            let filteredGames = gamesDatabase;
+
+            if (currentFilter !== 'all') {
+                filteredGames = filteredGames.filter(game => 
+                    game.platform === currentFilter || game.category === currentFilter
+                );
+            }
+
+            if (searchTerm) {
+                filteredGames = filteredGames.filter(game =>
+                    game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    game.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    game.cheats.some(cheat => 
+                        cheat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        cheat.code.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                );
+            }
+
+            if (filteredGames.length === 0) {
+                gamesGrid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            gamesGrid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            gamesGrid.innerHTML = filteredGames.map((game, index) => `
+                <div class="game-card" onclick="openModal(${gamesDatabase.indexOf(game)})">
+                    <div class="game-header">
+                        <div>
+                            <div class="game-title">${game.title}</div>
+                            <div class="game-year">${game.year}</div>
+                        </div>
+                        <span class="game-platform">${game.platform}</span>
+                    </div>
+                    <div class="cheats-preview">
+                        ${game.cheats.slice(0, 2).map(cheat => `• ${cheat.name}`).join('<br>')}
+                        ${game.cheats.length > 2 ? '<br>• and more...' : ''}
+                    </div>
+                    <div class="cheat-count">
+                        ⚡ ${game.cheats.length} cheat${game.cheats.length !== 1 ? 's' : ''} available
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(gameIndex) {
+            const game = gamesDatabase[gameIndex];
+            const modal = document.getElementById('cheatModal');
+            
+            document.getElementById('modalTitle').textContent = game.title;
+            document.getElementById('modalPlatform').innerHTML = `
+                <span class="game-platform">${game.platform}</span>
+                <span style="color: var(--text-secondary); margin-left: 1rem;">${game.year}</span>
+            `;
+
+            document.getElementById('modalCheats').innerHTML = game.cheats.map((cheat, index) => `
+                <div class="cheat-item">
+                    <div class="cheat-name">${cheat.name}</div>
+                    <div class="cheat-code" id="code-${gameIndex}-${index}">
+                        ${cheat.code}
+                        <button class="copy-btn" onclick="copyCode(event, '${cheat.code.replace(/'/g, "\\'")}')">COPY</button>
+                    </div>
+                    <div class="cheat-description">${cheat.description}</div>
+                </div>
+            `).join('');
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('cheatModal').classList.remove('active');
+        }
+
+        function copyCode(event, code) {
+            event.stopPropagation();
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ COPIED';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderGames();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                renderGames();
+            });
+        });
+
+        document.getElementById('cheatModal').addEventListener('click', (e) => {
+            if (e.target.id === 'cheatModal') {
+                closeModal();
+            }
+        });
+
+        initializeStats();
+        renderGames();
+    </script>
+</body>
+</html>
