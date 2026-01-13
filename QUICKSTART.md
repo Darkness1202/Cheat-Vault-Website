@@ -49,7 +49,7 @@ I've created a complete GitHub Pages ready website package with:
 9. **Source: main branch, / (root)**
 10. **Click Save**
 11. **Wait 2 minutes**
-12. **Visit:** `https://YOUR-USERNAME.github.io/cheat-vault/`
+12. **Visit:** `https://Darkness1202.github.io/cheat-vault/`
 
 ### Option B: GitHub Desktop (Easiest for Updates)
 
